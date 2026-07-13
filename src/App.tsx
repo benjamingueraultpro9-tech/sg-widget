@@ -22,6 +22,9 @@ export default function App() {
         positionX={-1.4}
         positionY={0}
         positionZ={0}
+        range="enabled"
+        rangeStart={0}
+        rangeEnd={40}
         reflection={0.1}
         rotationX={0}
         rotationY={10}
@@ -30,7 +33,7 @@ export default function App() {
         uAmplitude={1}
         uDensity={0.7}
         uFrequency={5.5}
-        uSpeed={0.4}
+        uSpeed={0.8}
         uStrength={2.7}
         wireframe={false}
       />
