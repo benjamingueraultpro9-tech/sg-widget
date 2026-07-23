@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { ShaderGradientCanvas, ShaderGradient } from '@shadergradient/react'
 
-const BASE_GRAIN = 0.3       // intensité de grain au repos (ajuste si besoin)
-const CLICK_GRAIN_BOOST = 0.5 // intensité ajoutée au pic
-const DECAY_RATE = 0.03       // vitesse de retour au calme (plus bas = plus lent)
+const BASE_BRIGHTNESS = 1
+const CLICK_BRIGHTNESS_BOOST = 0.15 // amplitude de la respiration (léger)
+const DECAY_RATE = 0.025            // vitesse de retour au calme (plus bas = plus lent, plus "respiré")
 
 export default function App() {
   const [mouse, setMouse] = useState({ x: 0, y: 0 })
@@ -56,7 +56,7 @@ export default function App() {
     >
       <ShaderGradient
         animate="on"
-        brightness={1}
+        brightness={BASE_BRIGHTNESS + pulse * CLICK_BRIGHTNESS_BOOST}
         cAzimuthAngle={180 + mouse.x * 15}
         cDistance={2.84}
         cPolarAngle={80 + mouse.y * 8}
@@ -66,7 +66,6 @@ export default function App() {
         color3="#35012c"
         envPreset="city"
         grain="on"
-        grainBlending={BASE_GRAIN + pulse * CLICK_GRAIN_BOOST}
         lightType="3d"
         positionX={0}
         positionY={0}
