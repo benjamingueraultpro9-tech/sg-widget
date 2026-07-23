@@ -1,29 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import { ShaderGradientCanvas, ShaderGradient } from '@shadergradient/react'
 
-// Couleurs de base (ton fond actuel)
-const BASE_COLORS = { c1: '#e3e9ff', c2: '#00002a', c3: '#35012c' }
-// Teinte qui apparaît brièvement au clic
-const FLASH_COLORS = { c1: '#fff4e0', c2: '#ff5005', c3: '#dbba95' }
-
-const DECAY_RATE = 0.03 // vitesse de retour aux couleurs normales (plus bas = plus lent)
-
-function lerpColor(hexA: string, hexB: string, t: number) {
-  const a = parseInt(hexA.slice(1), 16)
-  const b = parseInt(hexB.slice(1), 16)
-  const ar = (a >> 16) & 255, ag = (a >> 8) & 255, ab = a & 255
-  const br = (b >> 16) & 255, bg = (b >> 8) & 255, bb = b & 255
-  const r = Math.round(ar + (br - ar) * t)
-  const g = Math.round(ag + (bg - ag) * t)
-  const bch = Math.round(ab + (bb - ab) * t)
-  return `#${((1 << 24) + (r << 16) + (g << 8) + bch).toString(16).slice(1)}`
-}
+const BASE_GRAIN = 0.3       // intensité de grain au repos (ajuste si besoin)
+const CLICK_GRAIN_BOOST = 0.5 // intensité ajoutée au pic
+const DECAY_RATE = 0.03       // vitesse de retour au calme (plus bas = plus lent)
 
 export default function App() {
   const [mouse, setMouse] = useState({ x: 0, y: 0 })
-  const [flash, setFlash] = useState(0)
+  const [pulse, setPulse] = useState(0)
   const mouseTarget = useRef({ x: 0, y: 0 })
-  const flashRef = useRef(0)
+  const pulseRef = useRef(0)
 
   useEffect(() => {
     const handleMove = (e: MouseEvent) => {
@@ -31,7 +17,7 @@ export default function App() {
       mouseTarget.current.y = (e.clientY / window.innerHeight - 0.5) * 2
     }
     const handleClick = () => {
-      flashRef.current = 1
+      pulseRef.current = 1
     }
 
     window.addEventListener('mousemove', handleMove)
@@ -43,8 +29,8 @@ export default function App() {
         x: prev.x + (mouseTarget.current.x - prev.x) * 0.05,
         y: prev.y + (mouseTarget.current.y - prev.y) * 0.05,
       }))
-      flashRef.current += (0 - flashRef.current) * DECAY_RATE
-      setFlash(flashRef.current)
+      pulseRef.current += (0 - pulseRef.current) * DECAY_RATE
+      setPulse(pulseRef.current)
 
       raf = requestAnimationFrame(loop)
     }
@@ -75,11 +61,12 @@ export default function App() {
         cDistance={2.84}
         cPolarAngle={80 + mouse.y * 8}
         cameraZoom={9.1}
-        color1={lerpColor(BASE_COLORS.c1, FLASH_COLORS.c1, flash)}
-        color2={lerpColor(BASE_COLORS.c2, FLASH_COLORS.c2, flash)}
-        color3={lerpColor(BASE_COLORS.c3, FLASH_COLORS.c3, flash)}
+        color1="#e3e9ff"
+        color2="#00002a"
+        color3="#35012c"
         envPreset="city"
         grain="on"
+        grainBlending={BASE_GRAIN + pulse * CLICK_GRAIN_BOOST}
         lightType="3d"
         positionX={0}
         positionY={0}
