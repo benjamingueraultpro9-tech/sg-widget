@@ -1,29 +1,50 @@
 import { useEffect, useRef, useState } from 'react'
 import { ShaderGradientCanvas, ShaderGradient } from '@shadergradient/react'
 
+const BASE_STRENGTH = 1.3
+const BASE_SPEED = 0.3
+
+// Réglages de la vague de turbulence au clic
+const CLICK_BOOST_STRENGTH = 3.5   // intensité ajoutée au pic
+const CLICK_BOOST_SPEED = 1.0      // vitesse ajoutée au pic
+const DECAY_RATE = 0.025           // vitesse de retour au calme (plus bas = plus lent)
+
 export default function App() {
   const [mouse, setMouse] = useState({ x: 0, y: 0 })
-  const target = useRef({ x: 0, y: 0 })
+  const [turbulence, setTurbulence] = useState(0)
+  const mouseTarget = useRef({ x: 0, y: 0 })
+  const turbulenceRef = useRef(0)
 
   useEffect(() => {
     const handleMove = (e: MouseEvent) => {
-      target.current.x = (e.clientX / window.innerWidth - 0.5) * 2  // -1 à 1
-      target.current.y = (e.clientY / window.innerHeight - 0.5) * 2 // -1 à 1
+      mouseTarget.current.x = (e.clientX / window.innerWidth - 0.5) * 2
+      mouseTarget.current.y = (e.clientY / window.innerHeight - 0.5) * 2
     }
+    const handleClick = () => {
+      turbulenceRef.current = 1
+    }
+
     window.addEventListener('mousemove', handleMove)
+    window.addEventListener('click', handleClick)
 
     let raf: number
     const loop = () => {
+      // lissage souris
       setMouse(prev => ({
-        x: prev.x + (target.current.x - prev.x) * 0.05,
-        y: prev.y + (target.current.y - prev.y) * 0.05,
+        x: prev.x + (mouseTarget.current.x - prev.x) * 0.05,
+        y: prev.y + (mouseTarget.current.y - prev.y) * 0.05,
       }))
+      // décroissance de la turbulence après le pic
+      turbulenceRef.current += (0 - turbulenceRef.current) * DECAY_RATE
+      setTurbulence(turbulenceRef.current)
+
       raf = requestAnimationFrame(loop)
     }
     loop()
 
     return () => {
       window.removeEventListener('mousemove', handleMove)
+      window.removeEventListener('click', handleClick)
       cancelAnimationFrame(raf)
     }
   }, [])
@@ -63,8 +84,8 @@ export default function App() {
         uAmplitude={0}
         uDensity={1.5}
         uFrequency={0}
-        uSpeed={0.3}
-        uStrength={1.3}
+        uSpeed={BASE_SPEED + turbulence * CLICK_BOOST_SPEED}
+        uStrength={BASE_STRENGTH + turbulence * CLICK_BOOST_STRENGTH}
         wireframe={false}
       />
     </ShaderGradientCanvas>
