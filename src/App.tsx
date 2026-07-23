@@ -1,19 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
 import { ShaderGradientCanvas, ShaderGradient } from '@shadergradient/react'
 
-const BASE_STRENGTH = 1.3
-const BASE_SPEED = 0.3
+const BASE_ZOOM = 9.1
 
-// Réglages de la vague de turbulence au clic
-const CLICK_BOOST_STRENGTH = 0.3   // était 0.8
-const CLICK_BOOST_SPEED = 0.1      // était 0.25
-const DECAY_RATE = 0.03            // inchangé
+// Réglages du pulse de zoom au clic
+const CLICK_ZOOM_BOOST = 0.08   // amplitude du zoom (fraction, ex: 0.08 = +8% au pic)
+const DECAY_RATE = 0.04         // vitesse de retour au calme (plus bas = plus lent)
 
 export default function App() {
   const [mouse, setMouse] = useState({ x: 0, y: 0 })
-  const [turbulence, setTurbulence] = useState(0)
+  const [pulse, setPulse] = useState(0)
   const mouseTarget = useRef({ x: 0, y: 0 })
-  const turbulenceRef = useRef(0)
+  const pulseRef = useRef(0)
 
   useEffect(() => {
     const handleMove = (e: MouseEvent) => {
@@ -21,7 +19,7 @@ export default function App() {
       mouseTarget.current.y = (e.clientY / window.innerHeight - 0.5) * 2
     }
     const handleClick = () => {
-      turbulenceRef.current = 1
+      pulseRef.current = 1
     }
 
     window.addEventListener('mousemove', handleMove)
@@ -29,14 +27,12 @@ export default function App() {
 
     let raf: number
     const loop = () => {
-      // lissage souris
       setMouse(prev => ({
         x: prev.x + (mouseTarget.current.x - prev.x) * 0.05,
         y: prev.y + (mouseTarget.current.y - prev.y) * 0.05,
       }))
-      // décroissance de la turbulence après le pic
-      turbulenceRef.current += (0 - turbulenceRef.current) * DECAY_RATE
-      setTurbulence(turbulenceRef.current)
+      pulseRef.current += (0 - pulseRef.current) * DECAY_RATE
+      setPulse(pulseRef.current)
 
       raf = requestAnimationFrame(loop)
     }
@@ -66,7 +62,7 @@ export default function App() {
         cAzimuthAngle={180 + mouse.x * 15}
         cDistance={2.84}
         cPolarAngle={80 + mouse.y * 8}
-        cameraZoom={9.1}
+        cameraZoom={BASE_ZOOM * (1 + pulse * CLICK_ZOOM_BOOST)}
         color1="#e3e9ff"
         color2="#00002a"
         color3="#35012c"
@@ -84,8 +80,8 @@ export default function App() {
         uAmplitude={0}
         uDensity={1.5}
         uFrequency={0}
-        uSpeed={BASE_SPEED + turbulence * CLICK_BOOST_SPEED}
-        uStrength={BASE_STRENGTH + turbulence * CLICK_BOOST_STRENGTH}
+        uSpeed={0.3}
+        uStrength={1.3}
         wireframe={false}
       />
     </ShaderGradientCanvas>
