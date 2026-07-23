@@ -5,9 +5,9 @@ const BASE_STRENGTH = 1.3
 const BASE_SPEED = 0.3
 
 // Réglages de la vague de turbulence au clic
-const CLICK_BOOST_STRENGTH = 3.5   // intensité ajoutée au pic
-const CLICK_BOOST_SPEED = 1.0      // vitesse ajoutée au pic
-const DECAY_RATE = 0.025           // vitesse de retour au calme (plus bas = plus lent)
+const CLICK_BOOST_STRENGTH = 0.8   // intensité ajoutée au pic (était 3.5)
+const CLICK_BOOST_SPEED = 0.25     // vitesse ajoutée au pic (était 1.0)
+const DECAY_RATE = 0.04            // vitesse de retour au calme (était 0.025, donc un peu plus rapide aussi)
 
 export default function App() {
   const [mouse, setMouse] = useState({ x: 0, y: 0 })
